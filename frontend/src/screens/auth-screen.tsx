@@ -1,11 +1,23 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useTheme } from "../context/ThemeContext";
 
 export default function LandingAuthScreen({ navigation }: any) {
+    const { theme } = useTheme();
+    const isDark = theme === "dark";
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>TalentBridge</Text>
-      <Text style={styles.subtitle}>Connecting students and companies for global internships</Text>
+    <View style={[
+        styles.container,
+        { backgroundColor: isDark ? "#0B132B" : "#FAFAFA" },
+      ]}>
+      <Text   style={[
+          styles.title,
+          { color: isDark ? "#EAEAEA" : "#4A4A4A" },
+        ]}>TalentBridge</Text>
+      <Text   style={[
+          styles.subtitle,
+          { color: isDark ? "#EAEAEA" : "#4A4A4A" },
+        ]}>Connecting students and companies for global internships</Text>
 
       <Pressable style={[styles.btn, styles.primary]} onPress={() => navigation.navigate("Signup")}>
         <Text style={styles.btnText}>Sign up</Text>

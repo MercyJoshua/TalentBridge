@@ -1,6 +1,7 @@
 // src/screens/OnboardingScreen.tsx
 import React, { useRef, useState } from "react";
 import { View, Text, StyleSheet, FlatList, Image, Dimensions, Pressable } from "react-native";
+import { useTheme } from "../context/ThemeContext";
 
 const { width } = Dimensions.get("window");
 
@@ -32,6 +33,9 @@ type Props = {
 };
 
 export default function OnboardingScreen({ navigation, onDone }: Props) {
+    const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const [index, setIndex] = useState(0);
   const ref = useRef<FlatList>(null);
 
@@ -48,7 +52,10 @@ export default function OnboardingScreen({ navigation, onDone }: Props) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[
+        styles.container,
+        { backgroundColor: isDark ? "#0B132B" : "#FAFAFA" },
+      ]}>
       <FlatList
         ref={ref}
         data={slides}
@@ -61,8 +68,11 @@ export default function OnboardingScreen({ navigation, onDone }: Props) {
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
             <Image source={item.image} style={styles.image} />
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.desc}>{item.description}</Text>
+            <Text style={[
+          styles.title,
+          { color: isDark ? "#EAEAEA" : "#4A4A4A" },
+        ]} >{item.title}</Text>
+            <Text style={[styles.desc, {color: isDark ? "#EAEAEA" : "#4A4A4A"}]}>{item.description}</Text>
           </View>
         )}
       />

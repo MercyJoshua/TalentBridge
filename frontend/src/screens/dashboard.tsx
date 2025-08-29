@@ -1,16 +1,25 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
 import * as SecureStore from "expo-secure-store";
+import { useTheme } from "../context/ThemeContext";
 
 export default function DashboardScreen({ navigation }: any) {
+    const { theme } = useTheme();
+      const isDark = theme === "dark";
   const logout = async () => {
     await SecureStore.deleteItemAsync("tb_auth_token");
     navigation.reset({ index: 0, routes: [{ name: "Onboarding" as never }] });
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to TalentBridge 👋</Text>
+    <View style={[
+        styles.container,
+        { backgroundColor: isDark ? "#0B132B" : "#FAFAFA" },
+      ]}>
+      <Text   style={[
+          styles.title,
+          { color: isDark ? "#EAEAEA" : "#4A4A4A" },
+        ]}>Welcome to TalentBridge 👋</Text>
       <Pressable style={styles.btn} onPress={logout}>
         <Text style={styles.btnText}>Log out</Text>
       </Pressable>
