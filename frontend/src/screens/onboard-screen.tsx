@@ -1,4 +1,3 @@
-// src/screens/OnboardingScreen.tsx
 import React, { useRef, useState } from "react";
 import { View, Text, StyleSheet, FlatList, Image, Dimensions, Pressable } from "react-native";
 import { useTheme } from "../context/ThemeContext";
