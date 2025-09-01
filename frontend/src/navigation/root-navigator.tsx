@@ -19,8 +19,8 @@ export default function RootNavigator() {
         headerStyle: {
           backgroundColor: isDark ? "#0B132B" : "#FAFAFA",
         },
-        headerTintColor: isDark ? "#EAEAEA" : "#4A4A4A", // title + back arrow color
-        headerTitle: "", // removes the "Splash / Login / Dashboard" text
+        headerTintColor: isDark ? "#EAEAEA" : "#4A4A4A", 
+        headerTitle: "", 
         headerRight: () => <ThemeToggle />,
       }}>
       <Stack.Screen name="Splash" component={SplashScreen} />
