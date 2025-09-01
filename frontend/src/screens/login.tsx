@@ -20,7 +20,7 @@ export default function LoginScreen({ navigation, onSuccess }: Props) {
 
   const mockLogin = async () => {
     onSuccess("demo_token_123");
-    navigation.reset({ index: 0, routes: [{ name: "Dashboard" as never }] });
+    navigation.reset({ index: 0, routes: [{ name: "StudentDashboard" as never }] });
   };
 
   return (
