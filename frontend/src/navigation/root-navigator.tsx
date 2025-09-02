@@ -8,6 +8,7 @@ import LandingAuthScreen from "../screens/auth-screen";
 import ThemeToggle from "../components/mini-components/theme-toggle";
 import { useTheme } from "../context/ThemeContext";
 import StudentDashboard from "../screens/student-dashboard";
+import TabNavigator from "./stacks/tab-navigator";
 
 const Stack = createStackNavigator();
 
@@ -24,7 +25,7 @@ export default function RootNavigator() {
         headerRight: () => <ThemeToggle />,
       }}>
       <Stack.Screen name="Splash" component={SplashScreen} />
-      <Stack.Screen name="StudentDashboard" component={StudentDashboard} />
+      <Stack.Screen name="StudentDashboard" component={TabNavigator} />
       <Stack.Screen name="Auth" component={LandingAuthScreen} />
 <Stack.Screen name="Onboarding">
   {props => <OnboardingScreen {...props} onDone={() => console.log("Done!")} />}
