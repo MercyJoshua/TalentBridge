@@ -27,6 +27,18 @@ export default function PassportScreen() {
     });
   }, []);
 
+  // Move useMemo to the top level
+  const currentLevel = useMemo(() => {
+    if (!user) return null;
+    const totalSkills = user.skills.length;
+    return LEVEL_RULES.find(
+      (lvl) =>
+        totalSkills >= lvl.minSkills &&
+        totalSkills <= lvl.maxSkills &&
+        user.totalExperience >= lvl.minExperience
+    );
+  }, [user]);
+
   const colors = {
     background: isDark ? "#0B132B" : "#FAFAFA",
     text: isDark ? "#EAEAEA" : "#1C1C1C",
@@ -47,15 +59,6 @@ export default function PassportScreen() {
 
   const totalSkills = user.skills.length;
   const badge = getUserBadge(user);
-
-  const currentLevel = useMemo(() => {
-    return LEVEL_RULES.find(
-      (lvl) =>
-        totalSkills >= lvl.minSkills &&
-        totalSkills <= lvl.maxSkills &&
-        user.totalExperience >= lvl.minExperience
-    );
-  }, [totalSkills, user.totalExperience]);
 
   return (
     <ScrollView
