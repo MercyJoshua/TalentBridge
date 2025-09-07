@@ -8,13 +8,14 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../context/ThemeContext";
 import { fetchUser } from "../../lib/api";
 import { getUserBadge } from "../../lib/calculations";
 import { LEVEL_RULES } from "../../lib/commons/constants";
 import { User } from "../../lib/commons/types";
-
 export default function PassportScreen() {
+  const navigation = useNavigation();
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [user, setUser] = useState<User | null>(null);
@@ -90,16 +91,19 @@ export default function PassportScreen() {
                 + Add Skills
               </Text>
             </Pressable>
-            <Pressable style={[styles.cta, { backgroundColor: colors.card }]}>
-              <Text style={[styles.ctaText, { color: colors.text }]}>
-                Take Assessment
-              </Text>
-            </Pressable>
+            <Pressable
+  style={[styles.cta, { backgroundColor: colors.card }]}
+  onPress={() => navigation.navigate("SkillAssessment", { screen: "Intro" })}
+>
+  <Text style={[styles.ctaText, { color: colors.text }]}>
+    Take Assessment
+  </Text>
+</Pressable>
           </>
         ) : (
           <>
             <Text style={[styles.sectionDesc, { color: colors.subText }]}>
-              You’ve added {totalSkills} skills. Current Level:
+            Your Current Level:
             </Text>
             <View style={[styles.badge, { backgroundColor: colors.highlight }]}>
               <Text style={{ color: "#fff", fontWeight: "700" }}>{badge}</Text>

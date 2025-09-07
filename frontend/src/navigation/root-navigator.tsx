@@ -1,3 +1,4 @@
+
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import OnboardingScreen from "../screens/onboard-screen";
@@ -9,8 +10,22 @@ import ThemeToggle from "../components/mini-components/theme-toggle";
 import { useTheme } from "../context/ThemeContext";
 import StudentDashboard from "../screens/student-dashboard";
 import TabNavigator from "./stacks/tab-navigator";
+import IntroModal from "../screens/student-dashboard/assessment/intro-modal";
+import SkillAssessmentNavigator from "./stacks/assessment-navigator";
+import { SkillAssessmentStackParamList } from "./stacks/assessment-navigator";
 
-const Stack = createStackNavigator();
+
+export type RootStackParamList = {
+  Splash: undefined;
+  StudentDashboard: undefined;
+  Auth: undefined;
+  Onboarding: undefined;
+  Signup: undefined;
+  Login: undefined;
+  SkillAssessment: { screen?: keyof SkillAssessmentStackParamList } | undefined;
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
     const { theme } = useTheme();
@@ -39,7 +54,11 @@ export default function RootNavigator() {
   {props => <LoginScreen {...props} onSuccess={() => console.log("Logged in!")} />}
 </Stack.Screen>
 
-
+<Stack.Screen
+  name="SkillAssessment"
+  component={SkillAssessmentNavigator}
+  options={{ headerShown: false, presentation: "modal" }}
+/>
     </Stack.Navigator>
   );
 }

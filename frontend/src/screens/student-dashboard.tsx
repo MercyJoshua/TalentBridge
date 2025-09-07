@@ -12,27 +12,16 @@ import {
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
+import { Opp } from "../lib/commons/types";
+import { mockOpportunitiesData } from "../lib/data";
 
 const { width } = Dimensions.get("window");
 const CARD_W = Math.min(220, Math.round(width * 0.48));
 const CARD_IMG_H = Math.round(CARD_W * 0.6);
 const TABBAR_PAD = 84;
 
-type Opp = {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  image: any; // require(...)
-};
 
-const mockOpportunities: Opp[] = [
-  { id: "1", title: "Marketing Internship", company: "Acme Co.", location: "Remote", image: require("../../assets/dashboard/4.png") },
-  { id: "2", title: "Software Engineering Project", company: "TechCorp", location: "San Francisco", image: require("../../assets/dashboard/2.png") },
-  { id: "3", title: "Product Design Internship", company: "DesignHub", location: "New York", image: require("../../assets/dashboard/7.png") },
-  { id: "4", title: "Research Assistant", company: "Uni Labs", location: "Hybrid", image: require("../../assets/dashboard/6.png") },
-  { id: "5", title: "Data Analyst Trainee", company: "Insight Ltd", location: "Remote", image: require("../../assets/dashboard/5.png") },
-];
+
 
 const TAGS = ["Remote", "Travel", "Duration", "Paid"];
 
@@ -120,7 +109,7 @@ export default function StudentDashboard() {
       {/* Recommended */}
       <Text style={[styles.sectionTitle, { color: colors.text }]}>Recommended for You</Text>
       <FlatList
-        data={mockOpportunities}
+        data={mockOpportunitiesData}
         keyExtractor={(it) => it.id}
         renderItem={renderCard}
         horizontal
@@ -132,7 +121,7 @@ export default function StudentDashboard() {
       {/* All Opportunities */}
       <Text style={[styles.sectionTitle, { color: colors.text }]}>All Opportunities</Text>
       <FlatList
-        data={mockOpportunities}
+        data={mockOpportunitiesData}
         keyExtractor={(it) => it.id}
         renderItem={renderListItem}
         showsVerticalScrollIndicator={false}
@@ -172,7 +161,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 20,
     marginRight: 8,
-    overflow: "hidden", // clips Android ripple to pill radius
+    overflow: "hidden", 
   },
   filterText: { fontSize: 14 },
 

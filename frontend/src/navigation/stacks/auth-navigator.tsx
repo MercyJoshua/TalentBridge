@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LandingAuthScreen from "../../screens/auth-screen";
 import LoginScreen from "../../screens/login";
 import SignupScreen from "../../screens/signup";
+import { SkillAssessmentStackParamList } from "./assessment-navigator";
 
 
 export type AuthStackParamList = {
@@ -10,6 +11,7 @@ export type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;
   StudentDashboard: undefined;
+  SkillAssessment: { screen?: keyof SkillAssessmentStackParamList } | undefined;
 };
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();

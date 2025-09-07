@@ -6,6 +6,7 @@ import StudentDashboard from "../../screens/student-dashboard";
 
 export type AppStackParamList = {
   StudentDashboard: undefined;
+  SkillAssessment: undefined; 
 };
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -14,7 +15,7 @@ export default function AppNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="StudentDashboard" component={StudentDashboard} />
-      {/* <Stack.Screen name="Dashboard" component={DashboardScreen} /> */}
+      {/* <Stack.Screen name="CompanyDashboard" component={DashboardScreen} /> */}
     </Stack.Navigator>
   );
 }
