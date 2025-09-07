@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -20,9 +20,23 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [extra, setExtra] = useState(""); // companyName or fieldOfStudy
-  const [step, setStep] = useState<"form" | "verify">("form");
+  const [step, setStep] = useState<"form" | "verify" | "password">("form");
+
   const [otpCode, setOtpCode] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [resendTimer, setResendTimer] = useState(0);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Countdown for resend
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (resendTimer > 0) {
+      timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendTimer]);
 
   const handleSendOtp = async () => {
     if (!email || !name || !role) {
@@ -35,7 +49,7 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
       email,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: "talentbridge://auth-callback", // must be in Supabase redirect allow-list
+        emailRedirectTo: "talentbridge://auth-callback",
         data: {
           full_name: name,
           role,
@@ -49,7 +63,23 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
       alert(error.message);
     } else {
       setStep("verify");
+      setResendTimer(60);
       alert("We’ve sent a 6-digit code to your email.");
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) return;
+
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      setResendTimer(60);
+      alert("New code sent!");
     }
   };
 
@@ -70,9 +100,87 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
     if (error) {
       alert(error.message);
     } else if (data?.session) {
-      onSuccess(data.session.access_token);
-      navigation.reset({ index: 0, routes: [{ name: "Dashboard" as never }] });
+      // Proceed to password setup
+      setStep("password");
     }
+  };
+
+  const handleSetPassword = async () => {
+    if (!password || !confirmPassword) {
+      alert("Fill in both password fields");
+      return;
+    }
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    const { error: updateError } = await supabase.auth.updateUser({
+      password,
+    });
+    if (updateError) {
+      setLoading(false);
+      alert(updateError.message);
+      return;
+    }
+
+    // Get current user session
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      setLoading(false);
+      alert("Could not fetch user info");
+      return;
+    }
+
+    // Insert profile into the right table
+    if (role === "student") {
+      const { error } = await supabase.from("student_profiles").insert([
+        {
+          id: user.id,
+          full_name: name,
+          education: "",
+          bio: "",
+          skills: [],
+          experience: "",
+          location: "",
+          portfolio_url: "",
+          linkedin_url: "",
+          github_url: "",
+        },
+      ]);
+      if (error) {
+        setLoading(false);
+        alert(error.message);
+        return;
+      }
+    } else if (role === "company") {
+      const { error } = await supabase.from("company_profiles").insert([
+        {
+          id: user.id,
+          company_name: extra,
+          industry: "",
+          description: "",
+          website_url: "",
+          location: "",
+          size: null,
+          founded_year: null,
+        },
+      ]);
+      if (error) {
+        setLoading(false);
+        alert(error.message);
+        return;
+      }
+    }
+
+    setLoading(false);
+    onSuccess((await supabase.auth.getSession()).data.session?.access_token!);
+    navigation.reset({ index: 0, routes: [{ name: "Dashboard" as never }] });
   };
 
   return (
@@ -86,6 +194,7 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
         Create Account
       </Text>
 
+      {/* Step 1: Role & Info Form */}
       {step === "form" && !role && (
         <View style={{ width: "100%", marginBottom: 24 }}>
           <Text
@@ -98,7 +207,7 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
           </Text>
           <Pressable style={styles.choiceBtn} onPress={() => setRole("student")}>
             <Text style={styles.choiceText}>
-              🎓 Student / Young Professional
+              🎓 Student / Looking for internship
             </Text>
           </Pressable>
           <Pressable style={styles.choiceBtn} onPress={() => setRole("company")}>
@@ -156,9 +265,7 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
           )}
 
           <Pressable style={styles.btn} onPress={handleSendOtp} disabled={loading}>
-            <Text style={styles.btnText}>
-              {loading ? "Sending..." : "Send Code"}
-            </Text>
+            <Text style={styles.btnText}>{loading ? "Sending..." : "Send Code"}</Text>
           </Pressable>
 
           <TouchableOpacity onPress={() => setRole(null)}>
@@ -167,6 +274,7 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
         </View>
       )}
 
+      {/* Step 2: OTP Verification */}
       {step === "verify" && (
         <View style={{ width: "100%" }}>
           <TextInput
@@ -181,9 +289,44 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
             onChangeText={setOtpCode}
           />
           <Pressable style={styles.btn} onPress={handleVerifyOtp} disabled={loading}>
-            <Text style={styles.btnText}>
-              {loading ? "Verifying..." : "Verify & Finish"}
+            <Text style={styles.btnText}>{loading ? "Verifying..." : "Verify Code"}</Text>
+          </Pressable>
+
+          <TouchableOpacity onPress={handleResendOtp} disabled={resendTimer > 0}>
+            <Text style={styles.backText}>
+              {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend Code"}
             </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Step 3: Password Setup */}
+      {step === "password" && (
+        <View style={{ width: "100%" }}>
+          <TextInput
+            style={[
+              styles.input,
+              { backgroundColor: isDark ? "#1C2541" : "#E0E0E0", color: "#fff" },
+            ]}
+            placeholder="Password"
+            placeholderTextColor="#9CA3AF"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TextInput
+            style={[
+              styles.input,
+              { backgroundColor: isDark ? "#1C2541" : "#E0E0E0", color: "#fff" },
+            ]}
+            placeholder="Confirm Password"
+            placeholderTextColor="#9CA3AF"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+          <Pressable style={styles.btn} onPress={handleSetPassword} disabled={loading}>
+            <Text style={styles.btnText}>{loading ? "Saving..." : "Finish Signup"}</Text>
           </Pressable>
         </View>
       )}
