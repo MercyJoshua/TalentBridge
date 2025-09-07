@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "TalentBridge",
@@ -28,6 +29,10 @@
     "plugins": [
       "expo-font",
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "supabaseUrl": "https://ujmfiirhflbxfzjukzyx.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqbWZpaXJoZmxieGZ6anVrenl4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxNzc1OTEsImV4cCI6MjA3Mjc1MzU5MX0.b7mdAgP9qKYIPYw4fgdKfsTIzRy32Y9tvE5OZRrHksE"
+    }
   }
 }

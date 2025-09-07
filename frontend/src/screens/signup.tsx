@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import supabase from "../lib/supabase";
 
 type Props = { navigation: any; onSuccess: (token: string) => void };
 
@@ -18,12 +19,60 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
   const [role, setRole] = useState<"student" | "company" | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [extra, setExtra] = useState(""); // companyName or fieldOfStudy
+  const [step, setStep] = useState<"form" | "verify">("form");
+  const [otpCode, setOtpCode] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const mockSignup = async () => {
-    onSuccess("demo_token_123");
-    navigation.reset({ index: 0, routes: [{ name: "Dashboard" as never }] });
+  const handleSendOtp = async () => {
+    if (!email || !name || !role) {
+      alert("Please fill all fields before continuing");
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: "talentbridge://auth-callback", // must be in Supabase redirect allow-list
+        data: {
+          full_name: name,
+          role,
+          extra_field: extra,
+        },
+      },
+    });
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      setStep("verify");
+      alert("We’ve sent a 6-digit code to your email.");
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otpCode) {
+      alert("Enter the code from your email");
+      return;
+    }
+
+    setLoading(true);
+    const { data, error } = await supabase.auth.verifyOtp({
+      email,
+      token: otpCode.trim(),
+      type: "email",
+    });
+    setLoading(false);
+
+    if (error) {
+      alert(error.message);
+    } else if (data?.session) {
+      onSuccess(data.session.access_token);
+      navigation.reset({ index: 0, routes: [{ name: "Dashboard" as never }] });
+    }
   };
 
   return (
@@ -33,14 +82,11 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
         { backgroundColor: isDark ? "#0B132B" : "#FAFAFA" },
       ]}
     >
-      <Text
-        style={[styles.title, { color: isDark ? "#EAEAEA" : "#4A4A4A" }]}
-      >
+      <Text style={[styles.title, { color: isDark ? "#EAEAEA" : "#4A4A4A" }]}>
         Create Account
       </Text>
 
-      {/* Step 1: Choose role */}
-      {!role && (
+      {step === "form" && !role && (
         <View style={{ width: "100%", marginBottom: 24 }}>
           <Text
             style={[
@@ -50,23 +96,18 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
           >
             I am signing up as:
           </Text>
-          <Pressable
-            style={styles.choiceBtn}
-            onPress={() => setRole("student")}
-          >
-            <Text style={styles.choiceText}>🎓 Student / Young Professional</Text>
+          <Pressable style={styles.choiceBtn} onPress={() => setRole("student")}>
+            <Text style={styles.choiceText}>
+              🎓 Student / Young Professional
+            </Text>
           </Pressable>
-          <Pressable
-            style={styles.choiceBtn}
-            onPress={() => setRole("company")}
-          >
+          <Pressable style={styles.choiceBtn} onPress={() => setRole("company")}>
             <Text style={styles.choiceText}>🏢 Company / Recruiter</Text>
           </Pressable>
         </View>
       )}
 
-      {/* Step 2: Role-specific signup form */}
-      {role && (
+      {step === "form" && role && (
         <View style={{ width: "100%" }}>
           <TextInput
             style={[
@@ -85,22 +126,11 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
             ]}
             placeholder="Email"
             placeholderTextColor="#9CA3AF"
+            autoCapitalize="none"
+            keyboardType="email-address"
             value={email}
             onChangeText={setEmail}
           />
-          <TextInput
-            style={[
-              styles.input,
-              { backgroundColor: isDark ? "#1C2541" : "#E0E0E0", color: "#fff" },
-            ]}
-            placeholder="Password"
-            placeholderTextColor="#9CA3AF"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-
-          {/* Role-specific extra field */}
           {role === "company" ? (
             <TextInput
               style={[
@@ -125,15 +155,36 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
             />
           )}
 
-          {/* Signup button */}
-          <Pressable style={styles.btn} onPress={mockSignup}>
-            <Text style={styles.btnText}>Finish</Text>
+          <Pressable style={styles.btn} onPress={handleSendOtp} disabled={loading}>
+            <Text style={styles.btnText}>
+              {loading ? "Sending..." : "Send Code"}
+            </Text>
           </Pressable>
 
-          {/* Go back option */}
           <TouchableOpacity onPress={() => setRole(null)}>
             <Text style={styles.backText}>← Go back</Text>
           </TouchableOpacity>
+        </View>
+      )}
+
+      {step === "verify" && (
+        <View style={{ width: "100%" }}>
+          <TextInput
+            style={[
+              styles.input,
+              { backgroundColor: isDark ? "#1C2541" : "#E0E0E0", color: "#fff" },
+            ]}
+            placeholder="Enter 6-digit code"
+            placeholderTextColor="#9CA3AF"
+            keyboardType="numeric"
+            value={otpCode}
+            onChangeText={setOtpCode}
+          />
+          <Pressable style={styles.btn} onPress={handleVerifyOtp} disabled={loading}>
+            <Text style={styles.btnText}>
+              {loading ? "Verifying..." : "Verify & Finish"}
+            </Text>
+          </Pressable>
         </View>
       )}
     </View>
@@ -141,22 +192,9 @@ export default function SignupScreen({ navigation, onSuccess }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "flex-start",
-    padding: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "800",
-    marginBottom: 24,
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
-  },
+  container: { flex: 1, alignItems: "center", padding: 24 },
+  title: { fontSize: 24, fontWeight: "800", marginBottom: 24 },
+  subtitle: { fontSize: 18, fontWeight: "600", marginBottom: 16 },
   choiceBtn: {
     backgroundColor: "#1C2541",
     paddingVertical: 14,
@@ -164,11 +202,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 12,
   },
-  choiceText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
+  choiceText: { color: "#fff", fontSize: 16, fontWeight: "600" },
   input: {
     width: "100%",
     paddingVertical: 14,
