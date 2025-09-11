@@ -1,22 +1,48 @@
-import { Opp, User } from "./commons/types";
+import { IMAGES } from "./commons/constants";
+import { Opportunity, Skill } from "./commons/types";
 
-let mockUser: User = {
-  id: "1",
-  name: "Ethan Carter",
-  university: "Stanford University",
-  skills: [],
-  totalExperience: 8, 
-   avatar: "https://i.pravatar.cc/150?img=3",
-};
 
-const mockOpportunities: Opp[] = [
-  { id: "1", title: "Marketing Internship", company: "Acme Co.", location: "Remote", image: require("../../assets/dashboard/4.png") },
-  { id: "2", title: "Software Engineering Project", company: "TechCorp", location: "San Francisco", image: require("../../assets/dashboard/2.png") },
-  { id: "3", title: "Product Design Internship", company: "DesignHub", location: "New York", image: require("../../assets/dashboard/7.png") },
-  { id: "4", title: "Research Assistant", company: "Uni Labs", location: "Hybrid", image: require("../../assets/dashboard/6.png") },
-  { id: "5", title: "Data Analyst Trainee", company: "Insight Ltd", location: "Remote", image: require("../../assets/dashboard/5.png") },
+export const mockOpportunities: Opportunity[] = [
+  {
+    id: '1',
+    title: 'Frontend Developer Intern',
+    company: 'TechCorp',
+    companyLogo: IMAGES.companies[0],
+    location: 'San Francisco, CA',
+    type: 'hybrid',
+    duration: '3 months',
+    isPaid: true,
+    description: 'Join our dynamic team to build cutting-edge web applications using React and TypeScript.',
+    skills: ['React', 'TypeScript', 'CSS'],
+  },
+  {
+    id: '2',
+    title: 'UX Design Internship',
+    company: 'DesignStudio',
+    companyLogo: IMAGES.companies[1],
+    location: 'Remote',
+    type: 'remote',
+    duration: '6 months',
+    isPaid: true,
+    description: 'Create beautiful and intuitive user experiences for mobile and web applications.',
+    skills: ['Figma', 'User Research', 'Prototyping'],
+  },
+  {
+    id: '3',
+    title: 'Data Science Trainee',
+    company: 'DataTech',
+    companyLogo: IMAGES.companies[2],
+    location: 'New York, NY',
+    type: 'onsite',
+    duration: '4 months',
+    isPaid: true,
+    description: 'Analyze large datasets and build machine learning models to drive business insights.',
+    skills: ['Python', 'Machine Learning', 'SQL'],
+  },
 ];
 
-export default mockUser;
-export const mockOpportunitiesData = mockOpportunities;
-// { id: "1", name: "Teamwork" }, { id: "2", name: "Presentation" }
+export const mockSkills: Skill[] = [
+  { id: '1', name: 'React', level: 'intermediate', category: 'Frontend' },
+  { id: '2', name: 'Python', level: 'advanced', category: 'Programming' },
+  { id: '3', name: 'Figma', level: 'beginner', category: 'Design' },
+];

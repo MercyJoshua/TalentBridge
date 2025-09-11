@@ -1,205 +1,287 @@
-import React, { useEffect, useState, useMemo } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Pressable,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { useTheme } from "../../context/ThemeContext";
-import { fetchUser } from "../../lib/api";
-import { getUserBadge } from "../../lib/calculations";
-import { LEVEL_RULES } from "../../lib/commons/constants";
-import { User } from "../../lib/commons/types";
-export default function PassportScreen() {
-  const navigation = useNavigation();
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { useTheme } from '../../context/ThemeContext';
+import { mockSkills } from '../../lib/data';
+import { useAuth } from '../../context/auth-context';
 
-  useEffect(() => {
-    fetchUser().then((data) => {
-      setUser(data);
-      setLoading(false);
-    });
-  }, []);
 
-  // Move useMemo to the top level
-  const currentLevel = useMemo(() => {
-    if (!user) return null;
-    const totalSkills = user.skills.length;
-    return LEVEL_RULES.find(
-      (lvl) =>
-        totalSkills >= lvl.minSkills &&
-        totalSkills <= lvl.maxSkills &&
-        user.totalExperience >= lvl.minExperience
-    );
-  }, [user]);
+const badges = [
+  { level: 'Ruby', color: '#E53E3E', unlocked: true },
+  { level: 'Silver', color: '#A0AEC0', unlocked: true },
+  { level: 'Gold', color: '#D69E2E', unlocked: false },
+  { level: 'Platinum', color: '#805AD5', unlocked: false },
+];
 
-  const colors = {
-    background: isDark ? "#0B132B" : "#FAFAFA",
-    text: isDark ? "#EAEAEA" : "#1C1C1C",
-    subText: isDark ? "#9CA3AF" : "#4A4A4A",
-    card: isDark ? "#1C2541" : "#E5E7EB",
-    highlight: "#4F46E5",
-  };
+export const PassportScreen: React.FC = () => {
+  const { colors } = useTheme();
+  const { user } = useAuth();
+  const [showAssessment, setShowAssessment] = useState(false);
 
-  if (loading) {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <ActivityIndicator color={colors.text} />
-      </View>
-    );
-  }
-
-  if (!user) return null;
-
-  const totalSkills = user.skills.length;
-  const badge = getUserBadge(user);
+  const currentBadge = badges.find(badge => badge.unlocked) || badges[0];
+  const hasSkills = mockSkills.length > 0;
 
   return (
-    <ScrollView
+    <ScrollView 
       style={[styles.container, { backgroundColor: colors.background }]}
+      showsVerticalScrollIndicator={false}
     >
-      {/* Profile Header */}
       <View style={styles.header}>
-        <Image source={{ uri: user.avatar }} style={styles.avatar} />
-        <Text style={[styles.name, { color: colors.text }]}>{user.name}</Text>
-        <Text style={[styles.subtitle, { color: colors.subText }]}>
-          {user.university}
-        </Text>
-      </View>
-
-      {/* Skill Passport */}
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          Skill Passport
-        </Text>
-
-        {totalSkills === 0 ? (
-          <>
-            <Text style={[styles.sectionDesc, { color: colors.subText }]}>
-              Add at least 3 core skills or take a skill assessment to unlock
-              your first badge.
+        <View style={styles.profileSection}>
+          <Image 
+            source={{ uri: user?.avatar }} 
+            style={styles.avatar}
+            resizeMode="cover"
+          />
+          <View style={styles.profileInfo}>
+            <Text style={[styles.name, { color: colors.text }]}>{user?.name}</Text>
+            <Text style={[styles.university, { color: colors.text }]}>
+              {user?.university || 'University'}
             </Text>
-            <Pressable style={[styles.cta, { backgroundColor: colors.card }]}>
-              <Text style={[styles.ctaText, { color: colors.text }]}>
-                + Add Skills
-              </Text>
-            </Pressable>
-            <Pressable
-  style={[styles.cta, { backgroundColor: colors.card }]}
-  onPress={() => navigation.navigate("SkillAssessment", { screen: "Intro" })}
->
-  <Text style={[styles.ctaText, { color: colors.text }]}>
-    Take Assessment
-  </Text>
-</Pressable>
-          </>
-        ) : (
-          <>
-            <Text style={[styles.sectionDesc, { color: colors.subText }]}>
-            Your Current Level:
-            </Text>
-            <View style={[styles.badge, { backgroundColor: colors.highlight }]}>
-              <Text style={{ color: "#fff", fontWeight: "700" }}>{badge}</Text>
-            </View>
-          </>
-        )}
-      </View>
-
-      {/* Levels */}
-      {totalSkills > 0 && (
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Levels
-          </Text>
-          <View style={styles.badgeRow}>
-            {LEVEL_RULES.map((level, i) => {
-              const isActive = currentLevel?.level === level.level;
-              return (
-                <View
-                  key={i}
-                  style={[
-                    styles.badge,
-                    {
-                      backgroundColor: isActive
-                        ? colors.highlight
-                        : colors.card,
-                    },
-                  ]}
-                >
-                  <Text style={{ color: isActive ? "#fff" : colors.text }}>
-                    {level.level}
-                  </Text>
-                </View>
-              );
-            })}
           </View>
         </View>
-      )}
+      </View>
 
-      {/* Visas */}
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          Visas
-        </Text>
-        {totalSkills === 0 ? (
-          <Text style={[styles.sectionDesc, { color: colors.subText }]}>
-            Your Visas will appear here as you add and achieve skills.
-          </Text>
-        ) : (
-          <View style={styles.visaRow}>
-            {user.skills.map((skill, idx) => (
-              <View
-                key={idx}
-                style={[styles.visa, { backgroundColor: colors.card }]}
+      <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Skill Passport</Text>
+        
+        {!hasSkills ? (
+          <View style={styles.emptyState}>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
+              Build Your Skill Passport
+            </Text>
+            <Text style={[styles.emptyDescription, { color: colors.text }]}>
+              Add at least 3 core skills or take our assessment to unlock your first badge and start your journey!
+            </Text>
+            
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: colors.primary }]}
+                onPress={() => setShowAssessment(true)}
               >
-                <Text style={{ color: colors.text }}>{skill.name}</Text>
+                <Text style={styles.actionButtonText}>Take Assessment</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: colors.accent }]}
+              >
+                <Text style={styles.actionButtonText}>+ Add Skills</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.skillsContent}>
+            <View style={styles.currentBadge}>
+              <View style={[styles.badgeCircle, { backgroundColor: currentBadge.color }]}>
+                <Text style={styles.badgeText}>{currentBadge.level[0]}</Text>
               </View>
-            ))}
+              <Text style={[styles.badgeLevel, { color: colors.text }]}>
+                {currentBadge.level} Level
+              </Text>
+            </View>
+
+            <View style={styles.skillsList}>
+              {mockSkills.map((skill) => (
+                <View key={skill.id} style={[styles.skillItem, { backgroundColor: colors.background }]}>
+                  <Text style={[styles.skillName, { color: colors.text }]}>{skill.name}</Text>
+                  <Text style={[styles.skillLevel, { color: colors.primary }]}>
+                    {skill.level}
+                  </Text>
+                </View>
+              ))}
+            </View>
           </View>
         )}
+      </View>
+
+      <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Badge Levels</Text>
+        
+        <View style={styles.badgesGrid}>
+          {badges.map((badge, index) => (
+            <View key={badge.level} style={styles.badgeItem}>
+              <View style={[
+                styles.badgeCircle,
+                { 
+                  backgroundColor: badge.unlocked ? badge.color : colors.border,
+                  opacity: badge.unlocked ? 1 : 0.5
+                }
+              ]}>
+                <Text style={[
+                  styles.badgeText,
+                  { color: badge.unlocked ? '#FFFFFF' : colors.text }
+                ]}>
+                  {badge.level[0]}
+                </Text>
+              </View>
+              <Text style={[styles.badgeName, { color: colors.text }]}>
+                {badge.level}
+              </Text>
+              {badge.unlocked && (
+                <Text style={[styles.unlockedText, { color: colors.primary }]}>
+                  ✓ Unlocked
+                </Text>
+              )}
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Achievement Visas</Text>
+        
+        <View style={styles.visasContainer}>
+          <Text style={[styles.comingSoon, { color: colors.text }]}>
+            🎯 Complete challenges and earn special visas for your achievements!
+          </Text>
+        </View>
       </View>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  header: { alignItems: "center", marginBottom: 24 },
-  avatar: { width: 90, height: 90, borderRadius: 45, marginBottom: 12 },
-  name: { fontSize: 20, fontWeight: "700" },
-  subtitle: { fontSize: 14 },
-  section: { marginBottom: 24 },
-  sectionTitle: { fontSize: 16, fontWeight: "700", marginBottom: 8 },
-  sectionDesc: { fontSize: 14, marginBottom: 12 },
-  cta: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 10,
-    alignItems: "center",
-  },
-  ctaText: { fontWeight: "600" },
-  badgeRow: { flexDirection: "row", justifyContent: "space-between" },
-  badge: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: "center",
+  container: {
     flex: 1,
-    marginRight: 8,
   },
-  visaRow: { flexDirection: "row", flexWrap: "wrap" },
-  visa: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    margin: 4,
+  header: {
+    padding: 20,
+    paddingTop: 60,
+  },
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 16,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  university: {
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  section: {
+    margin: 20,
+    marginTop: 0,
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyDescription: {
+    fontSize: 14,
+    opacity: 0.7,
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  actionButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  skillsContent: {
+    alignItems: 'center',
+  },
+  currentBadge: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  badgeCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  badgeText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  badgeLevel: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  skillsList: {
+    width: '100%',
+    gap: 8,
+  },
+  skillItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+  },
+  skillName: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  skillLevel: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  badgesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  badgeItem: {
+    width: '48%',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  badgeName: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: 8,
+  },
+  unlockedText: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  visasContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  comingSoon: {
+    fontSize: 14,
+    opacity: 0.7,
+    textAlign: 'center',
   },
 });
