@@ -24,7 +24,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
       }),
       Animated.timing(rotateAnim, {
         toValue: 1,
-        duration: 600,
+        duration: 800,
         useNativeDriver: true,
       }),
     ]).start(() => {
