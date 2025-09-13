@@ -1,0 +1,68 @@
+# ----------------
+# Python
+# ----------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+*.log
+
+# ----------------
+# Virtual environment
+# ----------------
+venv/
+.env/
+env/
+.venv/
+
+# ----------------
+# IDE & editor files
+# ----------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ----------------
+# OS files
+# ----------------
+.DS_Store
+Thumbs.db
+
+# ----------------
+# Python build artifacts
+# ----------------
+build/
+dist/
+*.spec
+
+# ----------------
+# Coverage / testing
+# ----------------
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.mypy_cache/
+.dmypy.json
+.pyre/
+
+# ----------------
+# Supabase
+# ----------------
+# (Supabase generates a local dev folder if you use CLI)
+.supabase/
+
+# ----------------
+# Secrets
+# ----------------
+*.env
+*.key
+*.pem
+*.crt
+*.db

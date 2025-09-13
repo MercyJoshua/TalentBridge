@@ -1,103 +1,127 @@
-import React, { useRef, useState } from "react";
-import { View, Text, StyleSheet, FlatList, Image, Dimensions, Pressable } from "react-native";
-import { useTheme } from "../context/ThemeContext";
+import React, { useRef, useState } from 'react';
+import { View, ScrollView, StyleSheet, Dimensions, TouchableOpacity, Text } from 'react-native';
+import { IMAGES } from '../lib/commons/constants';
+import { useTheme } from '../context/ThemeContext';
+import { OnboardingSlide } from '../components/OnboardingSlide';
 
-const { width } = Dimensions.get("window");
+
+const { width } = Dimensions.get('window');
+
+interface OnboardingScreenProps {
+  onComplete: () => void;
+}
 
 const slides = [
   {
-    id: "1",
-    title: "Unlock Global Opportunities",
-    description:
-      "TalentBridge connects students with global internships, offering Skill Passports and AI-powered matching.",
-    image: require("../../assets/adaptive-icon.png"),
+    image: IMAGES.onboarding[0],
+    title: 'Discover Opportunities',
+    description: 'Find internships, jobs, and projects from top companies worldwide tailored to your skills and interests.',
   },
   {
-    id: "2",
-    title: "Build Your Skill Passport",
-    description: "Showcase your skills and achievements to stand out worldwide.",
-    image: require("../../assets/favicon.png"),
+    image: IMAGES.onboarding[1],
+    title: 'Build Your Network',
+    description: 'Connect with global talent and industry professionals to expand your career opportunities.',
   },
   {
-    id: "3",
-    title: "Smart Matching",
-    description: "Get paired with internships that fit your goals.",
-    image: require("../../assets/splash-icon.png"),
+    image: IMAGES.onboarding[2],
+    title: 'Grow Your Skills',
+    description: 'Track your progress, earn badges, and unlock new levels as you develop your professional skills.',
   },
 ];
 
-type Props = {
-  navigation: any;
-  onDone: () => Promise<void> | void;
-};
+export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
+  const { colors } = useTheme();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-export default function OnboardingScreen({ navigation, onDone }: Props) {
-    const { theme } = useTheme();
-  const isDark = theme === "dark";
-
-  const [index, setIndex] = useState(0);
-  const ref = useRef<FlatList>(null);
-
-  const handleScroll = (e: any) => {
-    setIndex(Math.round(e.nativeEvent.contentOffset.x / width));
+  const handleScroll = (event: any) => {
+    const slideIndex = Math.round(event.nativeEvent.contentOffset.x / width);
+    setCurrentIndex(slideIndex);
   };
 
-  const next = () => {
-    if (index === slides.length - 1) {
-      Promise.resolve(onDone()).finally(() => navigation.replace("Auth"));
+  const nextSlide = () => {
+    if (currentIndex < slides.length - 1) {
+      scrollViewRef.current?.scrollTo({
+        x: (currentIndex + 1) * width,
+        animated: true,
+      });
     } else {
-      ref.current?.scrollToIndex({ index: index + 1 });
+      onComplete();
     }
   };
 
   return (
-    <View style={[
-        styles.container,
-        { backgroundColor: isDark ? "#0B132B" : "#FAFAFA" },
-      ]}>
-      <FlatList
-        ref={ref}
-        data={slides}
-        keyExtractor={(i) => i.id}
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        ref={scrollViewRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        renderItem={({ item }) => (
-          <View style={[styles.slide, { width }]}>
-            <Image source={item.image} style={styles.image} />
-            <Text style={[
-          styles.title,
-          { color: isDark ? "#EAEAEA" : "#4A4A4A" },
-        ]} >{item.title}</Text>
-            <Text style={[styles.desc, {color: isDark ? "#EAEAEA" : "#4A4A4A"}]}>{item.description}</Text>
-          </View>
-        )}
-      />
-
-      <View style={styles.dots}>
-        {slides.map((_, i) => (
-          <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
+      >
+        {slides.map((slide, index) => (
+          <OnboardingSlide key={index} {...slide} />
         ))}
-      </View>
+      </ScrollView>
 
-      <Pressable style={styles.cta} onPress={next}>
-        <Text style={styles.ctaText}>{index === slides.length - 1 ? "Get Started" : "Next"}</Text>
-      </Pressable>
+      <View style={styles.footer}>
+        <View style={styles.pagination}>
+          {slides.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                {
+                  backgroundColor: index === currentIndex ? colors.primary : colors.border,
+                },
+              ]}
+            />
+          ))}
+        </View>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: colors.primary }]}
+          onPress={nextSlide}
+        >
+          <Text style={styles.buttonText}>
+            {currentIndex === slides.length - 1 ? 'Get Started' : 'Next'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0B132B", alignItems: "center" },
-  slide: { alignItems: "center", justifyContent: "center", padding: 24 },
-  image: { width: "78%", height: 240, marginTop: 48, marginBottom: 24, resizeMode: "contain" },
-  title: { color: "#EAEAEA", fontSize: 22, fontWeight: "800", marginBottom: 8, textAlign: "center" },
-  desc: { color: "#EAEAEA", opacity: 0.9, fontSize: 16, textAlign: "center", paddingHorizontal: 16 },
-  dots: { flexDirection: "row", marginVertical: 16 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#4A4A4A", marginHorizontal: 4 },
-  dotActive: { backgroundColor: "#00BFA6", width: 20 },
-  cta: { backgroundColor: "#00BFA6", paddingVertical: 14, paddingHorizontal: 40, borderRadius: 28, marginBottom: 40 },
-  ctaText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  container: {
+    flex: 1,
+  },
+  footer: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    alignItems: 'center',
+  },
+  pagination: {
+    flexDirection: 'row',
+    marginBottom: 30,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  button: {
+    paddingHorizontal: 40,
+    paddingVertical: 16,
+    borderRadius: 25,
+    minWidth: 120,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
