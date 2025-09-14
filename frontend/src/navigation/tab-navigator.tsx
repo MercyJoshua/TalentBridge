@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
-import { HomeScreen } from '../screens/student-dashboard/home-screen';
+import { StudentDashboard } from '../screens/student-dashboard/home-screen';
 import { MessagesScreen } from '../screens/student-dashboard/message-screen';
 import { NotificationsScreen } from '../screens/student-dashboard/notification-screen';
 import { PassportScreen } from '../screens/student-dashboard/passport-screen';
@@ -53,7 +53,7 @@ export const TabNavigator: React.FC = () => {
     >
       <Tab.Screen 
         name="Home" 
-        component={HomeScreen}
+        component={StudentDashboard}
         options={{
           tabBarLabel: 'Home',
         }}

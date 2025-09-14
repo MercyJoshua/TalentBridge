@@ -53,3 +53,39 @@ export interface Notification {
   read: boolean;
   type: 'opportunity' | 'message' | 'achievement';
 }
+
+export interface JobPosting {
+  id: string;
+  title: string;
+  company: string;
+  companyLogo: string;
+  location: string;
+  type: 'internship' | 'full-time' | 'part-time';
+  compensation: string;
+  duration: string;
+  description: string;
+  skills: string[];
+  status: 'open' | 'closed' | 'draft';
+  applicantsCount: number;
+  postedAt: Date;
+}
+
+export interface Candidate {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  university: string;
+  skills: string[];
+  level: 'Ruby' | 'Silver' | 'Gold' | 'Platinum';
+  bio: string;
+  appliedJobs: string[];
+  shortlisted: boolean;
+}
+
+export interface CompanyStats {
+  activePostings: number;
+  totalApplicants: number;
+  shortlistedCandidates: number;
+  messagesUnread: number;
+}

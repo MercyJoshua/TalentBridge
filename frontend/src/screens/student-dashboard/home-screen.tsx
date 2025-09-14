@@ -8,7 +8,7 @@ import { mockOpportunities } from '../../lib/data';
 
 const filterOptions = ['All', 'Remote', 'Paid', 'Internship', 'Full-time'];
 
-export const HomeScreen: React.FC = () => {
+export const StudentDashboard: React.FC = () => {
   const { colors } = useTheme();
   const { user } = useAuth();
   const [selectedFilter, setSelectedFilter] = useState('All');
