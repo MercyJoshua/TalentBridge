@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
-import { Opportunity } from '@/lib/types';
+import { Opportunity } from '@/lib/commons/types';
 
 interface OpportunityCardProps {
   opportunity: Opportunity;

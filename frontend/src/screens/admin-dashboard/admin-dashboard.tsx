@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const DashboardScreen = () => {
+const CompanyHomeScreen = () => {
   return (
   <View style={styles.container}>
       {/* Header */}
@@ -84,34 +84,6 @@ const DashboardScreen = () => {
           </View>
         </View>
       </ScrollView>
-
-      {/* Bottom Navigation */}
-  <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="grid-outline" size={22} color="white" />
-          <Text style={styles.navTextActive}>Dashboard</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="briefcase-outline" size={22} color="gray" />
-          <Text style={styles.navText}>Postings</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="people-outline" size={22} color="gray" />
-          <Text style={styles.navText}>Candidates</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="chatbubble-ellipses-outline" size={22} color="gray" />
-          <Text style={styles.navText}>Messages</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="person-outline" size={22} color="gray" />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -282,4 +254,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DashboardScreen;
+export default CompanyHomeScreen;
