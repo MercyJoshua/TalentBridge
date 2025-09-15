@@ -1,257 +1,241 @@
-import React from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import React from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/auth-context';
+import { IMAGES } from '@/lib/commons/constants';
+import { mockCompanyStats } from '@/lib/companyData';
 
-const CompanyHomeScreen = () => {
+export const AdminDashboard: React.FC = () => {
+  const { colors } = useTheme();
+  const { user } = useAuth();
+
+  const StatCard: React.FC<{ title: string; value: number; icon: string }> = ({
+    title,
+    value,
+    icon,
+  }) => (
+    <View style={[styles.statCard, { backgroundColor: colors.card }]}>
+      <Ionicons name={icon as any} size={24} color={colors.primary} />
+      <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
+      <Text style={[styles.statTitle, { color: colors.text + '80' }]}>
+        {title}
+      </Text>
+    </View>
+  );
+
+  const ActivityItem: React.FC<{ title: string; time: string; type: string }> = ({
+    title,
+    time,
+    type,
+  }) => (
+    <View style={[styles.activityItem, { borderBottomColor: colors.border }]}>
+      <View style={styles.activityContent}>
+        <Text style={[styles.activityTitle, { color: colors.text }]}>
+          {title}
+        </Text>
+        <Text style={[styles.activityTime, { color: colors.text + '60' }]}>
+          {time}
+        </Text>
+      </View>
+      <View style={[styles.activityBadge, { backgroundColor: colors.primary }]}>
+        <Text style={styles.activityType}>{type}</Text>
+      </View>
+    </View>
+  );
+
   return (
-  <View style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-  <View style={styles.header}>
-  <Text style={styles.headerTitle}>Dashboard</Text>
-        <TouchableOpacity>
-          <Ionicons name="notifications-outline" size={22} color="white" />
+      <View style={styles.header}>
+        <View style={styles.welcomeSection}>
+          <Image source={{ uri: IMAGES.companyLogos[0] }} style={styles.companyLogo} />
+          <View>
+            <Text style={[styles.welcomeText, { color: colors.text + '80' }]}>
+              Welcome back,
+            </Text>
+            <Text style={[styles.companyName, { color: colors.text }]}>
+              {user?.name}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Stats Cards */}
+      <View style={styles.statsContainer}>
+        <StatCard
+          title="Active Postings"
+          value={mockCompanyStats.activePostings}
+          icon="briefcase"
+        />
+        <StatCard
+          title="Total Applicants"
+          value={mockCompanyStats.totalApplicants}
+          icon="people"
+        />
+        <StatCard
+          title="Shortlisted"
+          value={mockCompanyStats.shortlistedCandidates}
+          icon="star"
+        />
+        <StatCard
+          title="Unread Messages"
+          value={mockCompanyStats.messagesUnread}
+          icon="mail"
+        />
+      </View>
+
+      {/* Action Buttons */}
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: colors.primary }]}
+        >
+          <Ionicons name="add" size={20} color="white" />
+          <Text style={styles.actionButtonText}>Post a Job</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.actionButton, { backgroundColor: colors.accent }]}
+        >
+          <Ionicons name="search" size={20} color="white" />
+          <Text style={styles.actionButtonText}>Browse Candidates</Text>
         </TouchableOpacity>
       </View>
 
-  <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Stats */}
-  <View style={styles.statsRow}>
-          <View style={[styles.statBox, { marginRight: 12 }] }>
-            <Text style={styles.statLabel}>Total Applicants</Text>
-            <Text style={styles.statValue}>125</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statLabel}>Interviews Scheduled</Text>
-            <Text style={styles.statValue}>32</Text>
-          </View>
-        </View>
-
-  <View style={styles.postingsBox}>
-          <Text style={styles.statLabel}>Active Postings</Text>
-          <Text style={styles.statValue}>5</Text>
-        </View>
-
-        {/* Quick Actions */}
-  <Text style={styles.quickActionsTitle}>
-          Quick Actions
+      {/* Recent Activity */}
+      <View style={[styles.activityContainer, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          Recent Activity
         </Text>
-
-        <TouchableOpacity style={styles.actionButtonBlue}>
-          <Text style={styles.actionButtonText}>Post New Opportunity</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButtonGray}>
-          <Text style={styles.actionButtonText}>Browse Candidates</Text>
-        </TouchableOpacity>
-
-        {/* AI Matching Section */}
-  <View style={styles.matchingSection}>
-          <View style={styles.matchingTextBox}>
-            <Text style={styles.matchingNew}>New</Text>
-            <Text style={styles.matchingTitle}>AI-Powered Candidate Matching</Text>
-            <Text style={styles.matchingDesc}>
-              Find the perfect fit for your team with our advanced matching algorithm.
-            </Text>
-            <TouchableOpacity style={styles.exploreButton}>
-              <Text style={styles.exploreButtonText}>Explore</Text>
-            </TouchableOpacity>
-          </View>
-          <Image
-            source={{
-              uri: "https://cdn-icons-png.flaticon.com/512/2922/2922561.png",
-            }}
-            style={styles.matchingImage}
-            resizeMode="contain"
-          />
-        </View>
-
-        {/* Messages */}
-  <Text style={styles.messagesTitle}>
-          Messages
-        </Text>
-  <View style={styles.messageRow}>
-          <Image
-            source={{
-              uri: "https://randomuser.me/api/portraits/women/44.jpg",
-            }}
-            style={styles.messageAvatar}
-          />
-          <View style={styles.messageTextBox}>
-            <Text style={styles.messageSender}>Sophia Chen</Text>
-            <Text style={styles.messagePreview} numberOfLines={1}>
-              Hi there, I'm interested in the marketing internship...
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
-    </View>
+        <ActivityItem
+          title="New application for Frontend Developer"
+          time="2 hours ago"
+          type="NEW"
+        />
+        <ActivityItem
+          title="Message from Sarah Chen"
+          time="4 hours ago"
+          type="MSG"
+        />
+        <ActivityItem
+          title="Candidate shortlisted for Data Science role"
+          time="1 day ago"
+          type="UPDATE"
+        />
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    paddingTop: 50,
   },
   header: {
+    padding: 20,
+  },
+  welcomeSection: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 12,
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
+  companyLogo: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
   },
-  scrollContent: {
-    paddingHorizontal: 20,
+  welcomeText: {
+    fontSize: 16,
   },
-  statsRow: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  statBox: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#374151',
-    borderRadius: 16,
-    padding: 16,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#9CA3AF',
-  },
-  statValue: {
+  companyName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 4,
   },
-  postingsBox: {
-    borderWidth: 1,
-    borderColor: '#374151',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
+  statsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 20,
+    marginBottom: 20,
   },
-  quickActionsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 12,
-  },
-  actionButtonBlue: {
-    backgroundColor: '#2563EB',
-    paddingVertical: 12,
+  statCard: {
+    width: '48%',
+    padding: 20,
     borderRadius: 12,
-    marginBottom: 12,
+    alignItems: 'center',
+    marginBottom: 10,
+    marginHorizontal: '1%',
   },
-  actionButtonGray: {
-    backgroundColor: '#374151',
-    paddingVertical: 12,
+  statValue: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginVertical: 8,
+  },
+  statTitle: {
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 15,
     borderRadius: 12,
-    marginBottom: 24,
+    marginHorizontal: 5,
   },
   actionButtonText: {
-    textAlign: 'center',
-    color: '#fff',
+    color: 'white',
     fontWeight: '600',
+    marginLeft: 8,
   },
-  matchingSection: {
+  activityContainer: {
+    margin: 20,
+    borderRadius: 12,
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  activityItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'transparent',
-    marginBottom: 24,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
   },
-  matchingTextBox: {
+  activityContent: {
     flex: 1,
-    marginRight: 12,
   },
-  matchingNew: {
-    fontSize: 12,
-    color: '#3B82F6',
-    marginBottom: 4,
-  },
-  matchingTitle: {
+  activityTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  matchingDesc: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    marginBottom: 12,
-  },
-  exploreButton: {
-    backgroundColor: '#374151',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  exploreButtonText: {
-    color: '#fff',
     fontWeight: '500',
   },
-  matchingImage: {
-    width: 96,
-    height: 96,
+  activityTime: {
+    fontSize: 14,
+    marginTop: 4,
+  },
+  activityBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
   },
-  messagesTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 12,
-  },
-  messageRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-  },
-  messageAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  messageTextBox: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  messageSender: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  messagePreview: {
-    color: '#9CA3AF',
-    fontSize: 14,
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#1F2937',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navText: {
+  activityType: {
+    color: 'white',
     fontSize: 12,
-    color: '#9CA3AF',
-  },
-  navTextActive: {
-    fontSize: 12,
-    color: '#fff',
     fontWeight: '600',
   },
 });
-
-export default CompanyHomeScreen;

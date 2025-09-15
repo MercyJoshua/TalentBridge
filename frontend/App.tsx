@@ -7,11 +7,10 @@ import { LoginScreen } from './src/screens/auth/login-screen';
 import { SignupScreen } from './src/screens/auth/signup-screen';
 import { OnboardingScreen } from './src/screens/onboard-screen';
 import { SplashScreen } from './src/screens/splash-screen';
-import AdminDashboard from '@/screens/admin-dashboard/admin-dashboard';
 import { StudentDashboard } from '@/screens/student-dashboard/home-screen';
-import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { CompanyTabNavigator } from '@/navigation/company-tab-navigator';
+import { AdminDashboard } from '@/screens/admin-dashboard/admin-dashboard';
 
 const Stack = createStackNavigator();
 
@@ -58,13 +57,6 @@ const AppContent: React.FC = () => {
         />
       );
     }
-  };
-
-  const renderMainScreen = () => {
-    if (user?.type === 'company') {
-      return <AdminDashboard />;
-    }
-    return user?.type === 'student' ? <StudentDashboard /> : <TabNavigator />;
   };
 
   return (

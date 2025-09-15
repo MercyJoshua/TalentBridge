@@ -2,11 +2,11 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/context/ThemeContext';
-import CompanyHomeScreen from '@/screens/admin-dashboard/admin-dashboard';
 import {ProfileScreen} from '@/screens/admin-dashboard/settings';
-import CandidatesScreen from '@/screens/admin-dashboard/candidates';
-import PostOpportunityScreen from '@/screens/admin-dashboard/PostOpportunityScreen';
 import { MessagesScreen } from '@/screens/student-dashboard/message-screen';
+import { PostingsScreen } from '@/screens/admin-dashboard/PostOpportunityScreen';
+import { AdminDashboard } from '@/screens/admin-dashboard/admin-dashboard';
+import { CandidatesScreen } from '@/screens/admin-dashboard/candidates';
 
 const Tab = createBottomTabNavigator();
 
@@ -50,8 +50,8 @@ export const CompanyTabNavigator: React.FC = () => {
         headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={CompanyHomeScreen} />
-      <Tab.Screen name="Postings" component={PostOpportunityScreen} />
+      <Tab.Screen name="Home" component={AdminDashboard} />
+      <Tab.Screen name="Postings" component={PostingsScreen} />
       <Tab.Screen name="Candidates" component={CandidatesScreen} />
       <Tab.Screen name="Messages" component={MessagesScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
